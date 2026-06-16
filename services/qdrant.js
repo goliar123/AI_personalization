@@ -1,27 +1,30 @@
-import { url } from "inspector"
-import {Qdrant} from "qdrant"
-
-let qdrantClient = null
+import { log } from "node:console";
+import {QdrantClient} from "@qdrant/js-client-rest"
+import { type } from "node:os";
 
 const qdrantClientConnection = async()=>{
+    let qdrantClient = null
     try{
         if(qdrantClient==null){
-            qdrantClient = new Qdrant(process.env.QDRANT_URL)
-            const schema = {
-                "name":process.env.COLLECTION_NAME,
-                "vector_size": 3,
-                "distance": "Cosine"
-            };
-            let res = await qdrantClient.create_collection(process.env.COLLECTION_NAME,schema)
-            if(res.err){
-                console.lof(err)
+            qdrantClient = new QdrantClient({host:process.env.QDRANT_URL,port:6333})
+            const exists = await qdrantClient.collectionExists(process.env.COLLECTION_NAME);
+            if(exists.exists==false){
+                const res = await qdrantClient.createCollection(process.env.COLLECTION_NAME,{
+                    vectors:{
+                        size: 1536,
+                        distance: "Cosine"
+                    }
+                })
+                console.log(res)
             }
-            else console.log("Success")
         }
-        return qdrantClient
     }
-    catch(e){
-        console.log(e);
+    catch(err){
+        qdrantClient = null
+        throw Error("Error while establishing qdrant connections",{cause: err})
+    }
+    finally{
+        return qdrantClient
     }
 }
 export default qdrantClientConnection

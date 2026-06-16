@@ -2,12 +2,12 @@ import { redisClientConnection } from "../services/redis.js";
 import qdrantClientConnection from "../services/qdrant.js";
 const health = async(req,res)=>{
     try{
-        const redisClient = await redisClientConnection()      
-        const qdrantClient = await qdrantClientConnection()
+        const redisClient = req.app.locals.redis    
+        const qdrantClient = req.app.locals.qdrant
         const val = await redisClient.ping()
-        const result = await qdrantClient.get_collection(process.env.COLLECTION_NAME)
-        if(val!="PONG" || res==null){
-            throw Error({message:"Error while verifying connections"})
+        const result = await qdrantClient.getCollection(process.env.COLLECTION_NAME)
+        if(val!="PONG" || result==null){
+            throw Error("Error while verifying connections",{cause:"The server are down for redis or qdrant"})
         }
         res.status(201).json({ 
             message: "pinged successfully",
@@ -16,10 +16,7 @@ const health = async(req,res)=>{
         });
     }
     catch(err){
-        console.log(err);
-        res.status(500).json({ 
-            err: err
-        });
+        throw new Error("Enable to reach health",{cause:err})
     }
 }
 
