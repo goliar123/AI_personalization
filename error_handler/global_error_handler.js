@@ -8,8 +8,7 @@ const global_error_handler = (err,req,res,next) =>{
             stack: err.cause.stack   
         };
     }
-
-    res.status(503).json({
+    res.status(403).json({
         errorType: err.name,
         message: err.message,
         originalError: causeDetail

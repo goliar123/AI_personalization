@@ -7,8 +7,9 @@ import { log } from "console"
 import dotenv from "dotenv"
 import health from "./routes/health.js"
 import uuid from "crypto"
-import analyze from "./routes/analyze.js"
 import generate from "./routes/generate.js"
+import getReview from "./routes/getReview.js"
+import review from "./routes/review.js"
 
 let redisTrue=false,qdrantTrue = false;
 
@@ -30,7 +31,12 @@ app.get("/",(req,res)=>{
 })
 app.get("/health",health)
 
+app.get("/review",review)
+
+app.post("/fetchReview",getReview)
+
 app.post("/generate",generate)
+
 
 const MAX_RETRIES = 1
 const MAX_INTERVAL = 3000
@@ -80,7 +86,7 @@ const server_start = async()=>{
         }
         app.locals.redis = redisClient
         app.locals.qdrant = qdrantClient
-        await uploadingCompanyRules(qdrantClient)
+        // await uploadingCompanyRules(qdrantClient)
         app.listen(process.env.PORT,async ()=>{
             console.log(`Listening at PORT ${process.env.PORT}`)
             if(redisClient===null || qdrantClient===null){
@@ -98,9 +104,11 @@ server_start()
 app.use(global_error_handler)
 
 process.on("uncaughtException",(error)=>{
+    console.log(error);
     gradefulshutdown("uncaughtException")
 })
 
 process.on("unhandledRejection",(error)=>{
+    console.log(error);
     gradefulshutdown("unhandledRejection")
 })

@@ -8,18 +8,18 @@ const fetchRules = async(qdrantClient,content) =>{
     try{
         
         const response = await generateEmbeddings(content);
-
-        const val = uuidv5(content,process.env.Key);
+        const val = uuidv5(content,process.env.Key);        
 
         const output = await qdrantClient.query(process.env.COLLECTION_NAME,{
             id:val,
-            vector: response.embedding[0].values,
+            vector: response.embeddings[0].values,
             with_payload:true,
         })
         return output
     }
     catch(err){
-        throw new Error("Error while analyzing code",{
+        console.log(err);
+        throw new Error("Error while fetching rules",{
             cause:err
         })
     }

@@ -1,7 +1,6 @@
 import { redisClientConnection } from "../services/redis.js";
 import {generateEmbeddings} from "../services/geminiGenAI.js";
 import { createHash, Hash, hash, randomUUID } from "crypto";
-import { log } from "console";
 import {v5 as uuidv5} from 'uuid'
 import companyRules from "../rule.js";
 
@@ -10,8 +9,8 @@ const uploadingCompanyRules = async(qdrant)=>{
         let output = [] 
         let len = companyRules.length
         for(let i=0;i<len;i++){
-            let content = companyRules[i]
-            let temp = `Category:${content.category} Rule: ${content.text}`  
+            let content = companyRules[i]            
+            let temp = `Category:${content.category} Rule: ${content.text}` 
             const response = await generateEmbeddings(temp);
             const val = uuidv5(temp,process.env.Key)
             const result = await qdrant.upsert(
@@ -29,7 +28,7 @@ const uploadingCompanyRules = async(qdrant)=>{
                         }
                     ],
                 }
-            )
+            )           
             output.push(result)
 
         }

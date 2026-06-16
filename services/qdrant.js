@@ -11,7 +11,7 @@ const qdrantClientConnection = async()=>{
             if(exists.exists==false){
                 const res = await qdrantClient.createCollection(process.env.COLLECTION_NAME,{
                     vectors:{
-                        size: 1536,
+                        size: 3072,
                         distance: "Cosine"
                     }
                 })

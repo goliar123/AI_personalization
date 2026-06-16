@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI,SchemaType } from '@google/generative-ai';
 import { type } from 'os';
 import companyRules from '../rule.js';
-import {property, z} from 'zod'
+import {json, property, uuid, uuidv4, z} from 'zod'
 import { zodToJsonSchema } from "zod-to-json-schema";
 import fetchRules from './fetchRules.js';
 
@@ -47,7 +47,7 @@ const schema = {
     required: ["agentThoughts", "suggestions", "confidence_score"]
 }
 
-const generateSuggests = async(qdrantClient,badCode) => {
+const generateSuggests = async(redisClient,qdrantClient,badCode) => {
     try{
         const ai = new GoogleGenerativeAI(process.env.GEMINI_API);
         
@@ -74,12 +74,17 @@ const generateSuggests = async(qdrantClient,badCode) => {
         `;
 
 
-        const output = await model.generateContent(prompt);
-        console.log(output.response.text());
-        
+        const output = await model.generateContent(prompt);        
         let response = output.response.text()
         response = outputSchema.parse(JSON.parse(response))
-        return response
+        const id = crypto.randomUUID()
+        
+        await redisClient.set(`pending_review:${id}`,JSON.stringify(response),{EX:1800})
+        return {
+            id: id,
+            agentThoughts:String(response.agentThoughts),
+            status:"pending_approval"
+        }
     }
     catch(err){
         console.log(err);

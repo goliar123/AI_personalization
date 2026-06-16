@@ -2,7 +2,7 @@ import generateSuggests from "../services/llm.js";
 const generate = async(req,res) =>{
     try{
         const code = req.body.code;
-        const response = await generateSuggests(req.locals.qdrant,code);
+        const response = await generateSuggests(req.app.locals.redis,req.app.locals.qdrant,code);
         res.status(200).json({
             response: response
         })
