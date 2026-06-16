@@ -10,6 +10,7 @@ import uuid from "crypto"
 import generate from "./routes/generate.js"
 import getReview from "./routes/getReview.js"
 import review from "./routes/review.js"
+import cors from "cors"
 
 let redisTrue=false,qdrantTrue = false;
 
@@ -17,7 +18,11 @@ const app = express()
 dotenv.config()
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
-
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: ["GET","POST"],
+    // credentials:true
+}))
 
 
 
@@ -29,13 +34,13 @@ app.get("/",(req,res)=>{
         id : uuid.randomUUID()
     })
 })
-app.get("/health",health)
+app.get("/api/health",health)
 
-app.get("/review",review)
+app.get("/api/review/:id",review)
 
-app.post("/fetchReview",getReview)
+app.post("/api/approve/:id",getReview)
 
-app.post("/generate",generate)
+app.post("/api/generate",generate)
 
 
 const MAX_RETRIES = 1
