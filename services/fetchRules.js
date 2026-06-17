@@ -8,10 +8,10 @@ const fetchRules = async(qdrantClient,content) =>{
     try{
         
         const response = await generateEmbeddings(content);
-        const val = uuidv5(content,process.env.Key);        
-
+        // const val = uuidv5(content,process.env.Key);        
+        
         const output = await qdrantClient.query(process.env.COLLECTION_NAME,{
-            id:val,
+            // id:JSON.stringify(val),
             vector: response.embeddings[0].values,
             with_payload:true,
         })

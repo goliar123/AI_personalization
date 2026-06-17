@@ -6,7 +6,7 @@ const review = async (req,res) =>{
         const response = await redisClient.get(`pending_review:${req.params.id}`)
         const output = JSON.parse(response)
         res.status(200).json({
-            output,
+            response:output,
         })
     }
     catch(err){

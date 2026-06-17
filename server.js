@@ -11,6 +11,7 @@ import generate from "./routes/generate.js"
 import getReview from "./routes/getReview.js"
 import review from "./routes/review.js"
 import cors from "cors"
+import limit from "./services/limiter.js"
 
 let redisTrue=false,qdrantTrue = false;
 
@@ -23,7 +24,7 @@ app.use(cors({
     methods: ["GET","POST"],
     // credentials:true
 }))
-
+app.use(limit)
 
 
 app.get("/",(req,res)=>{
